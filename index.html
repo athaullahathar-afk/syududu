@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Hey You 👀</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background: linear-gradient(135deg, #ff9a9e 0%, #fecfef 50%, #fecfef 100%);
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+.chat-container {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  max-width: 400px;
+  margin: 0 auto;
+  background: white;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.1);
+}
+
+.chat-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 20px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.chat-header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+  animation: shine 3s infinite;
+}
+
+@keyframes shine {
+  0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+  100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+.header-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  margin: 0 auto 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+.chat-messages {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  background: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.message {
+  animation: messageSlide 0.3s ease-out;
+  max-width: 80%;
+}
+
+@keyframes messageSlide {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.message.me {
+  align-self: flex-end;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 12px 18px;
+  border-radius: 20px 20px 5px 20px;
+  margin-left: auto;
+}
+
+.message.other {
+  align-self: flex-start;
+  background: white;
+  padding: 12px 18px;
+  border-radius: 20px 20px 20px 5px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+}
+
+.message.typing {
+  background: #e9ecef;
+  color: #6c757d;
+  font-style: italic;
+}
+
+.message-time {
+  font-size: 11px;
+  opacity: 0.7;
+  margin-top: 5px;
+}
+
+.chat-input {
+  padding: 20px;
+  background: white;
+  border-top: 1px solid #e9ecef;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.date-input, .time-input {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 25px;
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.date-input:focus, .time-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+  transform: scale(1.02);
+}
+
+.send-btn {
+  width: 50px;
+  height: 50px;
+  border: none;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 20px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.send-btn:hover:not(:disabled) {
+  transform: scale(1.1) rotate(180deg);
+  box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+}
+
+.send-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.typing-indicator {
+  display: none;
+  padding: 10px;
+}
+
+.typing-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.typing-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #999;
+  animation: typing 1.4s infinite;
+}
+
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing {
+  0%, 60%, 100% { transform: scale(1); opacity: 0.5; }
+  30% { transform: scale(1.2); opacity: 1; }
+}
+
+.particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: -1;
+}
+
+@media (max-width: 480px) {
+  .chat-container { max-width: 100%; }
+}
+</style>
+</head>
+<body>
+<div class="particles" id="particles"></div>
+
+<div class="chat-container">
+  <div class="chat-header">
+    <div class="header-avatar">😊</div>
+    <h2>Someone special</h2>
+    <p style="opacity: 0.9; font-size: 14px;">online</p>
+  </div>
+
+  <div class="chat-messages" id="messages">
+    <div class="message other">
+      hey 👋<br>
+      this is kinda random but...
+    </div>
+    
+    <div class="message other typing-indicator" id="typingIndicator">
+      <div class="typing-dots">
+        <span></span><span></span><span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="chat-input">
+    <input type="date" class="date-input" id="dateInput" min="">
+    <input type="time" class="time-input" id="timeInput">
+    <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>✈️</button>
+  </div>
+</div>
+
+<script>
+const messagesEl = document.getElementById('messages');
+const typingIndicator = document.getElementById('typingIndicator');
+const dateInput = document.getElementById('dateInput');
+const timeInput = document.getElementById('timeInput');
+const sendBtn = document.getElementById('sendBtn');
+let conversationStep = 0;
+let selectedDate, selectedTime;
+
+const conversation = [
+  "I wanted to talk to you about something",
+  "and I feel like it's better said directly 😌",
+  "nothing weird, I promise!",
+  "when are you free? pick a date & time ⏰",
+  "perfect! can't wait to see you ✨"
+];
+
+// Set min date to today
+dateInput.valueAsDate = new Date();
+dateInput.min = dateInput.value;
+
+function addMessage(text, isMe = false, delay = 1000) {
+  return new Promise(resolve => {
+    setTimeout(() => {
+      const message = document.createElement('div');
+      message.className = `message ${isMe ? 'me' : 'other'}`;
+      message.innerHTML = text + `<div class="message-time">${new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>`;
+      messagesEl.appendChild(message);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+      resolve();
+    }, delay);
+  });
+}
+
+function showTyping(show = true) {
+  typingIndicator.style.display = show ? 'block' : 'none';
+  if (show) messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+
+async function startConversation() {
+  showTyping(true);
+  
+  for (let i = 0; i < conversation.length; i++) {
+    await addMessage(conversation[i]);
+    showTyping(false);
+    
+    if (i === 3) { // When asking for date/time
+      sendBtn.disabled = false;
+      break;
+    }
+    
+    // Simulate typing delay
+    showTyping(true);
+    await new Promise(r => setTimeout(r, 1500 + Math.random() * 1000));
+  }
+}
+
+function sendMessage() {
+  selectedDate = dateInput.value;
+  selectedTime = timeInput.value;
+  
+  if (!selectedDate || !timeInput.value) {
+    // Shake inputs
+    dateInput.style.animation = 'shake 0.5s';
+    timeInput.style.animation = 'shake 0.5s';
+    setTimeout(() => {
+      dateInput.style.animation = '';
+      timeInput.style.animation = '';
+    }, 500);
+    return;
+  }
+  
+  sendBtn.disabled = true;
+  sendBtn.textContent = '⏳';
+  
+  addMessage(`I'm free on ${selectedDate} at ${selectedTime} 😊`, true, 0);
+  
+  setTimeout(async () => {
+    showTyping(true);
+    await new Promise(r => setTimeout(r, 2000));
+    await addMessage("perfect! can't wait to see you ✨");
+    sendBtn.textContent = '📱';
+    sendBtn.disabled = false;
+    sendBtn.onclick = sendToWhatsApp;
+  }, 500);
+}
+
+function sendToWhatsApp() {
+  const phone = "628XXXXXXXXXX"; // Replace with actual number
+  const text = encodeURIComponent(`Hey! I'm free on ${selectedDate} at ${selectedTime} 😊 Let's meet up!`);
+  window.open(`https://wa.me/${phone}?text=${text}`, '_blank');
+}
+
+// Shake animation
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+`;
+document.head.appendChild(style);
+
+// Particles effect
+function createHeart() {
+  const heart = document.createElement('div');
+  heart.innerHTML = '🤞';
+  heart.style.cssText = `
+    position: fixed;
+    font-size: 20px;
+    pointer-events: none;
+    left: ${Math.random() * 100}vw;
+    top: 100vh;
+    animation: floatUp 4s linear forwards;
+    z-index: 1000;
+  `;
+  document.body.appendChild(heart);
+  
+  setTimeout(() => heart.remove(), 4000);
+}
+
+const particleStyle = document.createElement('style');
+particleStyle.textContent = `
+  @keyframes floatUp {
+    0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+  }
+`;
+document.head.appendChild(particleStyle);
+
+// Create hearts periodically
+setInterval(() => {
+  if (Math.random() > 0.7) createHeart();
+}, 2000);
+
+// Start the magic!
+startConversation();
+
+// Input listeners for real-time validation
+dateInput.addEventListener('input', checkInputs);
+timeInput.addEventListener('input', checkInputs);
+
+function checkInputs() {
+  sendBtn.disabled = !dateInput.value || !timeInput.value;
+}
+</script>
+</body>
+</html>
